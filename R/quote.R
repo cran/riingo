@@ -26,7 +26,18 @@
 riingo_iex_quote <- function(ticker) {
   assert_x_inherits(ticker, "ticker", class = "character")
 
-  purrr::map_dfr(ticker, riingo_iex_quote_single)
+  results <- purrr::map(ticker, riingo_iex_quote_single_safely)
+
+  validate_not_all_null(results)
+
+  dplyr::bind_rows(results)
+}
+
+riingo_iex_quote_single_safely <- function(ticker) {
+  riingo_single_safely(
+    .f = riingo_iex_quote_single,
+    ticker = ticker
+  )
 }
 
 riingo_iex_quote_single <- function(ticker) {
@@ -41,9 +52,6 @@ riingo_iex_quote_single <- function(ticker) {
 
   # Download
   json_content <- content_downloader(riingo_url, ticker)
-
-  # For quotes, they aren't returned as JSON arrays and they should be
-  json_content <- paste0("[", json_content, "]")
 
   # Parse
   cont_df <- jsonlite::fromJSON(json_content)
@@ -96,7 +104,7 @@ riingo_crypto_quote <- function(ticker, exchanges = NULL, convert_currency = NUL
   endpoint <- "quote"
 
   # For crypto, tickers are passed as a comma separated parameter
-  ticker <- glue::collapse(ticker, ",")
+  ticker <- glue::glue_collapse(ticker, ",")
 
   # URL construction
   riingo_url <- construct_url(
