@@ -30,7 +30,7 @@ riingo_iex_quote <- function(ticker) {
 
   validate_not_all_null(results)
 
-  dplyr::bind_rows(results)
+  vctrs::vec_rbind(!!!results)
 }
 
 riingo_iex_quote_single_safely <- function(ticker) {
@@ -51,10 +51,7 @@ riingo_iex_quote_single <- function(ticker) {
   )
 
   # Download
-  json_content <- content_downloader(riingo_url, ticker)
-
-  # Parse
-  cont_df <- jsonlite::fromJSON(json_content)
+  cont_df <- content_downloader(riingo_url, ticker)
 
   # Clean
   riingo_data <- clean_json_df(cont_df, type, endpoint)
@@ -119,10 +116,7 @@ riingo_crypto_quote <- function(ticker, exchanges = NULL, convert_currency = NUL
     riingo_url <- glue::glue(riingo_url, "&includeRawExchangeData=true")
 
     # Download
-    json_content <- content_downloader(riingo_url, ticker)
-
-    # Parse
-    cont_df <- jsonlite::fromJSON(json_content)
+    cont_df <- content_downloader(riingo_url, ticker)
 
     # We are only going to return exchange data, ignore price data
     exch_data_idx <- which(colnames(cont_df) == "exchangeData")
@@ -140,19 +134,16 @@ riingo_crypto_quote <- function(ticker, exchanges = NULL, convert_currency = NUL
     # Extract "nested" data frames
     exch_data_rows <- purrr::map(seq_ticker, ~{
       i <- .x
-      tibble::as_tibble(purrr::map_dfr(exch_data, ~.x[[i]]))
+      tibble::as_tibble(riingo_map_dfr(exch_data, ~.x[[i]]))
     })
 
     # Bind each row of meta to an exchange data frame
-    riingo_df <- purrr::map2_dfr(meta_rows, exch_data_rows, ~cbind(.x, .y))
+    riingo_df <- riingo_map2_dfr(meta_rows, exch_data_rows, ~cbind(.x, .y))
 
   } else {
 
     # Download
-    json_content <- content_downloader(riingo_url, ticker)
-
-    # Parse
-    cont_df <- jsonlite::fromJSON(json_content)
+    cont_df <- content_downloader(riingo_url, ticker)
 
     # Have to convert to tibble here, otherwise warnings in the map
     cont_tbl <- tibble::as_tibble(cont_df)
@@ -160,10 +151,10 @@ riingo_crypto_quote <- function(ticker, exchanges = NULL, convert_currency = NUL
     # Coerce to tidy format (for each row, unnest the priceData)
     cont_tbl_split <- split(cont_tbl, cont_tbl$ticker)
 
-    riingo_df <- purrr::map_dfr(cont_tbl_split, ~{
+    riingo_df <- riingo_map_dfr(cont_tbl_split, ~{
       top_idx <- which(colnames(.x) == "topOfBookData")
       meta <- .x[, -top_idx]
-      pd   <- purrr::flatten_dfr(.x[, top_idx])
+      pd   <- riingo_flatten_dfr(.x[, top_idx])
       cbind(meta, pd)
     })
   }

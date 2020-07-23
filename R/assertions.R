@@ -64,11 +64,15 @@ assert_valid_response <- function(ticker, resp) {
 }
 
 assert_valid_content <- function(ticker, cont) {
-  if(cont == "[]") {
-    glue_stop("No error was thrown by Tiingo for {green(ticker)}, but no content was returned. \n",
-              "Are you sure this is a valid ticker? Check this with {yellow('is_supported_ticker()')}. \n",
-              "Alternatively, you might be outside the valid date range.")
+  if (!identical(cont, list())) {
+    return(invisible())
   }
+
+  glue_stop(
+    "No error was thrown by Tiingo for {green(ticker)}, but no content was returned. \n",
+    "Are you sure this is a valid ticker? Check this with {yellow('is_supported_ticker()')}. \n",
+    "Alternatively, you might be outside the valid date range."
+  )
 }
 
 # Check all of the arguments at once
@@ -80,9 +84,10 @@ assert_valid_argument_inheritance <- function(ticker, start_date, end_date, resa
 }
 
 assert_resample_freq_is_granular <- function(resample_frequency) {
-  valid_freq <- c("daily", "monthly", "quarterly", "yearly")
+  valid_freq <- c("daily", "weekly", "monthly", "annually")
 
   is_valid_freq <- resample_frequency %in% valid_freq
+
   if(!is_valid_freq) {
     user_freq <- green(resample_frequency)
     correct_freq <- glue::glue_collapse(yellow(valid_freq), ", ", last = ", or ")

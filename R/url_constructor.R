@@ -21,11 +21,19 @@ construct_unglued_url <- function(type, endpoint, parameters) {
 
 retrieve_base_url <- function(type, endpoint) {
   switch(type,
-         "tiingo" = switch(endpoint,
-                           "news" = "https://api.tiingo.com/tiingo",
-                           "https://api.tiingo.com/tiingo/daily/{ticker}"), # default
-         "iex"    = "https://api.tiingo.com/iex/{ticker}",
-         "crypto" = "https://api.tiingo.com/tiingo/crypto"
+    "tiingo" =
+      switch(endpoint,
+        "news" = "https://api.tiingo.com/tiingo",
+        "fundamentals-definitions" = "https://api.tiingo.com/tiingo/fundamentals",
+        "fundamentals-statements" = "https://api.tiingo.com/tiingo/fundamentals",
+        "fundamentals-metrics" = "https://api.tiingo.com/tiingo/fundamentals",
+        "fundamentals-meta" = "https://api.tiingo.com/tiingo/fundamentals",
+        "fx-prices" = "https://api.tiingo.com/tiingo/fx",
+        "fx-quote" = "https://api.tiingo.com/tiingo/fx",
+        "https://api.tiingo.com/tiingo/daily/{ticker}"
+      ), # default
+    "iex" = "https://api.tiingo.com/iex/{ticker}",
+    "crypto" = "https://api.tiingo.com/tiingo/crypto"
   )
 }
 
@@ -35,13 +43,19 @@ retrieve_endpoint <- function(type, endpoint) {
          "iex"    = switch(endpoint,
                            "quote"  = "",
                            "latest" = "/prices?",
-                           "prices" = "/prices?"),
+                           "prices" = "/prices?columns=open,high,low,close,volume&"),
 
          "tiingo" = switch(endpoint,
                            "meta"   = "",
                            "latest" = "/prices",
                            "prices" = "/prices?",
-                           "news"   = "/news?"),
+                           "news"   = "/news?",
+                           "fundamentals-definitions" = "/definitions",
+                           "fundamentals-statements" = "/{ticker}/statements?",
+                           "fundamentals-metrics" = "/{ticker}/daily?",
+                           "fundamentals-meta" = "/meta?",
+                           "fx-prices" = "/{ticker}/prices?",
+                           "fx-quote" = "/top?"),
 
          "crypto" = switch(endpoint,
                            "latest" = "/prices?",
@@ -90,9 +104,10 @@ as_http_parameter_string <- function(..., type) {
       return("")
     }
 
+    param <- clean_logical_parameter(param)
     param <- clean_date_parameter(param)
-    resp <- paste(param_name, param, sep = "=")
-    #resp <- paste0(resp, "&")
+
+    paste(param_name, param, sep = "=")
   }
 
   http_params <- purrr::imap_chr(params, ~structure_as_http(.x, .y, type))
@@ -125,4 +140,16 @@ clean_date_parameter <- function(param) {
   }
 
   param
+}
+
+clean_logical_parameter <- function(param) {
+  if (!is.logical(param)) {
+    return(param)
+  }
+
+  if (rlang::is_true(param)) {
+    "true"
+  } else {
+    "false"
+  }
 }

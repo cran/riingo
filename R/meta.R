@@ -26,7 +26,7 @@ riingo_meta <- function(ticker) {
 
   validate_not_all_null(results)
 
-  dplyr::bind_rows(results)
+  vctrs::vec_rbind(!!!results)
 }
 
 riingo_meta_single_safely <- function(ticker) {
@@ -46,10 +46,7 @@ riingo_meta_single <- function(ticker) {
   )
 
   # Download
-  json_content <- content_downloader(riingo_url, ticker)
-
-  # Parse
-  cont_df <- jsonlite::fromJSON(json_content)
+  cont_df <- content_downloader(riingo_url, ticker)
 
   # Clean
   riingo_data <- clean_json_df(cont_df, type, endpoint)
@@ -94,7 +91,7 @@ riingo_crypto_meta <- function(ticker) {
 
   validate_not_all_null(results)
 
-  dplyr::bind_rows(results)
+  vctrs::vec_rbind(!!!results)
 }
 
 riingo_crypto_meta_single_safely <- function(ticker) {
@@ -116,10 +113,7 @@ riingo_crypto_meta_single <- function(ticker) {
   )
 
   # Download
-  json_content <- content_downloader(riingo_url, ticker)
-
-  # Parse
-  cont_df <- jsonlite::fromJSON(json_content)
+  cont_df <- content_downloader(riingo_url, ticker)
 
   # Clean
   cont_tbl <- tibble::as_tibble(cont_df)

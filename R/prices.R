@@ -4,7 +4,7 @@
 #' Get stock or ETF prices from the Tiingo API
 #'
 #' The Tiingo API provides a large feed of historical data at the
-#' daily (and monthly, quarterly, or yearly) level.
+#' daily (and weekly, monthly, or annual) level.
 #'
 #' @param ticker One or more tickers to download data for from Tiingo. Can be a
 #' stock, mutual fund, or ETF. A character vector.
@@ -14,10 +14,13 @@
 #' @param end_date The last date to download data for.
 #' A character in the form YYYY-MM-DD, or a `Date` variable.
 #' @param resample_frequency For Tiingo data, a character specified as one of:
-#' `"daily"`, `"monthly"`, `"quarterly"` or `"yearly"`. For IEX data, a character
-#' specified at the `"min"` or `"hour"` frequencies in the form:
-#' `"1min"`, `"5min"`, or `"2hour"`. For Crypto data, a character specified at
-#' the `"min"`, `"hour"` or `"day"` frequencies similar to IEX.
+#' `"daily"`, `"weekly"`, `"monthly"` or `"annually"`.
+#'
+#' For IEX data, a character specified at the `"min"` or `"hour"` frequencies
+#' in the form: `"1min"`, `"5min"`, or `"2hour"`.
+#'
+#' For Crypto data, a character specified at the `"min"`, `"hour"` or `"day"`
+#' frequencies similar to IEX.
 #'
 #' @details
 #'
@@ -75,7 +78,7 @@ riingo_prices <- function(ticker, start_date = NULL, end_date = NULL, resample_f
 
   validate_not_all_null(results)
 
-  dplyr::bind_rows(results)
+  vctrs::vec_rbind(!!!results)
 }
 
 riingo_prices_single_safely <- function(ticker, start_date, end_date, resample_frequency) {
@@ -102,10 +105,7 @@ riingo_prices_single <- function(ticker, start_date, end_date, resample_frequenc
   )
 
   # Download
-  json_content <- content_downloader(riingo_url, ticker)
-
-  # Parse
-  cont_df <- jsonlite::fromJSON(json_content)
+  cont_df <- content_downloader(riingo_url, ticker)
 
   # Clean
   riingo_data <- clean_json_df(cont_df, type, endpoint)
@@ -121,22 +121,31 @@ riingo_prices_single <- function(ticker, start_date, end_date, resample_frequenc
 
 #' Get stock or ETF prices from IEX through Tiingo
 #'
-#' The Tiingo API provides a way to access data from IEX, The Investors Exchange.
-#' This data is supplied at a much lower (intraday!) frequency than the data from Tiingo's
-#' native API.
+#' The Tiingo API provides a way to access data from IEX,
+#' The Investors Exchange. This data is supplied at a much lower (intraday!)
+#' frequency than the data from Tiingo's native API.
 #'
 #' @inheritParams riingo_prices
 #'
+#' @param after_hours A single logical. Should pre and post market data be
+#'   returned if available?
+#'
+#' @param force_fill A single logical. Some tickers do not have a trade/quote
+#'   update for a given time period. If `force_fill` is set to `TRUE`, then the
+#'   previous OHLC will be used to fill the current OHLC.
+#'
 #' @details
 #'
-#' This feed returns the most recent 2000 ticks of data at the specified frequency.
-#' For example, `"5min"` would return the 2000 most recent data points spaced 5 minutes apart.
-#' You can subset the returned range with `start_date` and `end_date`, but __you cannot
-#' request data older than today's date minus 2000 data points.__
+#' This feed returns the most recent 2000 ticks of data at the specified
+#' frequency. For example, `"5min"` would return the 2000 most recent data
+#' points spaced 5 minutes apart. You can subset the returned range with
+#' `start_date` and `end_date`, but __you cannot request data older than
+#' today's date minus 2000 data points.__
 #'
 #' Because the default attempts to pull 1 year's worth of data, at a 5 minute
 #' frequency, all available data will be pulled so there is no need to use
-#' `start_date` and `end_date`. Only use them if you set the frequency to hourly.
+#' `start_date` and `end_date`. Only use them if you set the frequency to
+#' hourly.
 #'
 #' @examples
 #'
@@ -151,35 +160,55 @@ riingo_prices_single <- function(ticker, start_date, end_date, resample_frequenc
 #' }
 #'
 #' @export
-riingo_iex_prices <- function(ticker, start_date = NULL, end_date = NULL, resample_frequency = "5min") {
+riingo_iex_prices <- function(ticker,
+                              start_date = NULL,
+                              end_date = NULL,
+                              resample_frequency = "5min",
+                              after_hours = FALSE,
+                              force_fill = FALSE) {
 
   assert_valid_argument_inheritance(ticker, start_date, end_date, resample_frequency)
   assert_resample_freq_is_fine(resample_frequency)
+  assert_x_inherits(after_hours, "after_hours", "logical")
+  assert_x_inherits(force_fill, "force_fill", "logical")
 
   results <- purrr::map(
     .x = ticker,
     .f = riingo_iex_prices_single_safely,
     start_date = start_date,
     end_date = end_date,
-    resample_frequency = resample_frequency
+    resample_frequency = resample_frequency,
+    after_hours = after_hours,
+    force_fill = force_fill
   )
 
   validate_not_all_null(results)
 
-  dplyr::bind_rows(results)
+  vctrs::vec_rbind(!!!results)
 }
 
-riingo_iex_prices_single_safely <- function(ticker, start_date, end_date, resample_frequency) {
+riingo_iex_prices_single_safely <- function(ticker,
+                                            start_date,
+                                            end_date,
+                                            resample_frequency,
+                                            after_hours,
+                                            force_fill) {
   riingo_single_safely(
     .f = riingo_iex_prices_single,
     ticker = ticker,
     start_date = start_date,
     end_date = end_date,
-    resample_frequency = resample_frequency
+    resample_frequency = resample_frequency,
+    after_hours = after_hours
   )
 }
 
-riingo_iex_prices_single <- function(ticker, start_date = NULL, end_date = NULL, resample_frequency = "5min") {
+riingo_iex_prices_single <- function(ticker,
+                                     start_date = NULL,
+                                     end_date = NULL,
+                                     resample_frequency = "5min",
+                                     after_hours = FALSE,
+                                     force_fill = FALSE) {
 
   type <- "iex"
   endpoint <- "prices"
@@ -189,14 +218,13 @@ riingo_iex_prices_single <- function(ticker, start_date = NULL, end_date = NULL,
     type, endpoint, ticker,
     startDate = start_date,
     endDate = end_date,
-    resampleFreq = resample_frequency
+    resampleFreq = resample_frequency,
+    afterHours = after_hours,
+    forceFill = force_fill
   )
 
   # Download
-  json_content <- content_downloader(riingo_url, ticker)
-
-  # Parse
-  cont_df <- jsonlite::fromJSON(json_content)
+  cont_df <- content_downloader(riingo_url, ticker)
 
   # Clean
   riingo_data <- clean_json_df(cont_df, type, endpoint)
@@ -306,10 +334,7 @@ riingo_crypto_prices <- function(ticker, start_date = NULL, end_date = NULL,
     riingo_url <- glue::glue(riingo_url, "&includeRawExchangeData=true")
 
     # Download
-    json_content <- content_downloader(riingo_url, ticker)
-
-    # Parse
-    cont_df <- jsonlite::fromJSON(json_content)
+    cont_df <- content_downloader(riingo_url, ticker)
 
     # We are only going to return exchange data, ignore price data
     exch_data_idx <- which(colnames(cont_df) == "exchangeData")
@@ -327,19 +352,16 @@ riingo_crypto_prices <- function(ticker, start_date = NULL, end_date = NULL,
     # Extract "nested" data frames
     exch_data_rows <- purrr::map(seq_ticker, ~{
       i <- .x
-      tibble::as_tibble(purrr::map_dfr(exch_data, ~.x[[i]]))
+      tibble::as_tibble(riingo_map_dfr(exch_data, ~.x[[i]]))
     })
 
     # Bind each row of meta to an exchange data frame
-    riingo_df <- purrr::map2_dfr(meta_rows, exch_data_rows, ~cbind(.x, .y))
+    riingo_df <- riingo_map2_dfr(meta_rows, exch_data_rows, ~cbind(.x, .y))
 
   } else {
 
     # Download
-    json_content <- content_downloader(riingo_url, ticker)
-
-    # Parse
-    cont_df <- jsonlite::fromJSON(json_content)
+    cont_df <- content_downloader(riingo_url, ticker)
 
     # Have to convert to tibble here, otherwise warnings in the map
     cont_tbl <- tibble::as_tibble(cont_df)
@@ -347,10 +369,10 @@ riingo_crypto_prices <- function(ticker, start_date = NULL, end_date = NULL,
     # Coerce to tidy format (for each row, unnest the priceData)
     cont_tbl_split <- split(cont_tbl, cont_tbl$ticker)
 
-    riingo_df <- purrr::map_dfr(cont_tbl_split, ~{
+    riingo_df <- riingo_map_dfr(cont_tbl_split, ~{
       pd_idx <- which(colnames(.x) == "priceData")
       meta <- .x[, -pd_idx]
-      pd   <- purrr::flatten_dfr(.x[, pd_idx])
+      pd   <- riingo_flatten_dfr(.x[, pd_idx])
       cbind(meta, pd)
     })
   }

@@ -4,9 +4,16 @@
 \alias{riingo_crypto_prices}
 \title{Get cryptocurrency prices aggregated through Tiingo}
 \usage{
-riingo_crypto_prices(ticker, start_date = NULL, end_date = NULL,
-  resample_frequency = "1day", base_currency = NULL,
-  exchanges = NULL, convert_currency = NULL, raw = FALSE)
+riingo_crypto_prices(
+  ticker,
+  start_date = NULL,
+  end_date = NULL,
+  resample_frequency = "1day",
+  base_currency = NULL,
+  exchanges = NULL,
+  convert_currency = NULL,
+  raw = FALSE
+)
 }
 \arguments{
 \item{ticker}{One or more cryptocurrency tickers.
@@ -20,10 +27,13 @@ download 1 year's worth of data.}
 A character in the form YYYY-MM-DD, or a \code{Date} variable.}
 
 \item{resample_frequency}{For Tiingo data, a character specified as one of:
-\code{"daily"}, \code{"monthly"}, \code{"quarterly"} or \code{"yearly"}. For IEX data, a character
-specified at the \code{"min"} or \code{"hour"} frequencies in the form:
-\code{"1min"}, \code{"5min"}, or \code{"2hour"}. For Crypto data, a character specified at
-the \code{"min"}, \code{"hour"} or \code{"day"} frequencies similar to IEX.}
+\code{"daily"}, \code{"weekly"}, \code{"monthly"} or \code{"annually"}.
+
+For IEX data, a character specified at the \code{"min"} or \code{"hour"} frequencies
+in the form: \code{"1min"}, \code{"5min"}, or \code{"2hour"}.
+
+For Crypto data, a character specified at the \code{"min"}, \code{"hour"} or \code{"day"}
+frequencies similar to IEX.}
 
 \item{base_currency}{\emph{Instead} of \code{ticker} you may pass a base currency.
 This selects all currencies with that base currency.

@@ -4,8 +4,12 @@
 \alias{riingo_prices}
 \title{Get stock or ETF prices from the Tiingo API}
 \usage{
-riingo_prices(ticker, start_date = NULL, end_date = NULL,
-  resample_frequency = "daily")
+riingo_prices(
+  ticker,
+  start_date = NULL,
+  end_date = NULL,
+  resample_frequency = "daily"
+)
 }
 \arguments{
 \item{ticker}{One or more tickers to download data for from Tiingo. Can be a
@@ -19,14 +23,17 @@ download 1 year's worth of data.}
 A character in the form YYYY-MM-DD, or a \code{Date} variable.}
 
 \item{resample_frequency}{For Tiingo data, a character specified as one of:
-\code{"daily"}, \code{"monthly"}, \code{"quarterly"} or \code{"yearly"}. For IEX data, a character
-specified at the \code{"min"} or \code{"hour"} frequencies in the form:
-\code{"1min"}, \code{"5min"}, or \code{"2hour"}. For Crypto data, a character specified at
-the \code{"min"}, \code{"hour"} or \code{"day"} frequencies similar to IEX.}
+\code{"daily"}, \code{"weekly"}, \code{"monthly"} or \code{"annually"}.
+
+For IEX data, a character specified at the \code{"min"} or \code{"hour"} frequencies
+in the form: \code{"1min"}, \code{"5min"}, or \code{"2hour"}.
+
+For Crypto data, a character specified at the \code{"min"}, \code{"hour"} or \code{"day"}
+frequencies similar to IEX.}
 }
 \description{
 The Tiingo API provides a large feed of historical data at the
-daily (and monthly, quarterly, or yearly) level.
+daily (and weekly, monthly, or annual) level.
 }
 \details{
 Multiple downloads are done \emph{sequentially}, meaning that downloading 5 tickers
