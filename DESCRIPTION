@@ -1,7 +1,7 @@
 Type: Package
 Package: riingo
 Title: An R Interface to the 'Tiingo' Stock Price API
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
     c(person(given = "Davis",
              family = "Vaughan",
@@ -27,8 +27,8 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-07-22 20:10:01 UTC; davis
+Packaged: 2020-09-10 15:26:58 UTC; davis
 Author: Davis Vaughan [aut, cre],
   Matt Dancho [aut]
 Repository: CRAN
-Date/Publication: 2020-07-23 04:30:05 UTC
+Date/Publication: 2020-09-12 05:50:11 UTC

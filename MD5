@@ -1,7 +1,7 @@
-cfc277e927a39fb0b8f9a94cb09d8e64 *DESCRIPTION
+a3d17ab8447465f56aa38300866c39cf *DESCRIPTION
 149a9445313331ca0aba958e61bad38a *LICENSE
 a54b1a58ab71462a366d295480ae9acb *NAMESPACE
-e7230958981fa5157e9228b5cb317f2c *NEWS.md
+cd7dad7ad75277ce198a34c0d3ab9120 *NEWS.md
 08aa1dd577aefe9c949deed86ec331a2 *R/assertions.R
 e964e0c0b4444583532065d9d419568f *R/auth.R
 67fbd6e1a0a2645947d3d67ef2aaf311 *R/browse.R
@@ -22,7 +22,7 @@ d311fc8bedaa5839941b5bcd53ef0f33 *R/fx-prices.R
 bec677f47e5386b30fb2e603066071b8 *R/safety.R
 30b4be35b5dafb08a47b49f686d11ee1 *R/ticker_info.R
 4cf6d3b1f40b9120649cd42854402d09 *R/time_zones.R
-bd8db48e9567b9ee8fb510fae99f9937 *R/url_constructor.R
+239acce93a0ceb546659facb382ed16c *R/url_constructor.R
 d63ba16b609354657022171db7d6b929 *R/utils.R
 c782bb231a759cc3044405a7237d1b07 *README.md
 9ef1116888adcdde22d9a49721a4b9cb *man/convert_to_local_time.Rd
@@ -58,7 +58,7 @@ ef19e72aa19ec2df8c7a053663ed91a9 *tests/testthat/test-fundamentals-metrics.R
 4021e721caa3ce16686e7fafeb3cfe29 *tests/testthat/test-fundamentals-statements.R
 fd2ead69fb6b45f52de5abc0aec531d7 *tests/testthat/test-fx-prices.R
 7a379038c56b93c3ae7fdd76d47d9c97 *tests/testthat/test-fx-quote.R
-2206a3e8d07bbc735858d015f925c717 *tests/testthat/test-latest.R
+fa0f57f1be87ed902eb52244c61afc59 *tests/testthat/test-latest.R
 d0dd9df0a71d17109427c43118adfd14 *tests/testthat/test-meta.R
 d53bb65413b56c1fe8861d6961082740 *tests/testthat/test-news.R
 5c6b40f992ad2a70c8b4912ee20f3d57 *tests/testthat/test-prices.R
